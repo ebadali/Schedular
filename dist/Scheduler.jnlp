@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0" xmlns:jfx="http://javafx.com" href="Scheduler.jnlp">
+  <information>
+    <title>Scheduler</title>
+    <vendor>User-Super</vendor>
+    <description>null</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="Scheduler.jar" size="26897" download="eager" />
+    <jar href="lib\ant-javafx.jar" size="446024" download="eager" />
+    <jar href="lib\javafx-doclet.jar" size="1098005" download="eager" />
+    <jar href="lib\javafx-mx.jar" size="68323" download="eager" />
+    <jar href="lib\jfxswt.jar" size="32982" download="eager" />
+    <jar href="lib\mongo-java-driver-3.3.0.jar" size="1540617" download="eager" />
+  </resources>
+  <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="Scheduler" >
+    <param name="requiredFXVersion" value="8.0+"/>
+  </applet-desc>
+  <jfx:javafx-desc  width="800" height="600" main-class="scheduler.Scheduler"  name="Scheduler" />
+  <update check="always"/>
+</jnlp>
