@@ -8,7 +8,7 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="Scheduler.jar" size="26897" download="eager" />
+    <jar href="Scheduler.jar" size="29389" download="eager" />
     <jar href="lib\ant-javafx.jar" size="446024" download="eager" />
     <jar href="lib\javafx-doclet.jar" size="1098005" download="eager" />
     <jar href="lib\javafx-mx.jar" size="68323" download="eager" />

@@ -5,8 +5,7 @@
  */
 package model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -16,16 +15,39 @@ import javafx.collections.ObservableList;
  */
 // Contains all the datastructures for list and db.
 public class Container {
-    
-    public static ObservableList<Inventory> inventoryList =
-        FXCollections.observableArrayList(
-            new Inventory("A", "Z", "a@example.com",211,""),
-            new Inventory("B", "X", "b@example.com",244,""),
-            new Inventory("C", "W", "c@example.com",255,""),
-            new Inventory("D", "Y", "d@example.com",266,""),
-            new Inventory("E", "V", "e@example.com",277,"")
-        ); 
-    static List<Job> jobList = new ArrayList();
+
+    static ObservableList<Inventory> inventoryList
+            = FXCollections.observableArrayList(
+                    new Inventory("A", "Z", "a@example.com", 211, ""),
+                    new Inventory("B", "X", "b@example.com", 244, ""),
+                    new Inventory("C", "W", "c@example.com", 255, ""),
+                    new Inventory("D", "Y", "d@example.com", 266, ""),
+                    new Inventory("E", "V", "e@example.com", 277, "")
+            );
+
+    static ObservableList<Job> jobList
+            = FXCollections.observableArrayList(
+                    new Job(JobStatus.COMPLETED, "sadasd2", "sadsad", "33dad", "asdsada3423",
+                            "asd54as5d", "sadasd", "sasadsa", "asddasdll", "sadasd", LocalDate.MAX, LocalDate.MIN, true, true, true, new Project()),
+                     new Job(JobStatus.COMPLETED, "sadasd3", "sadsad", "33dad", "asdsada3423",
+                            "asd54as5d", "sadasd", "sasadsa4", "asddasdll", "sadasd", LocalDate.MAX, LocalDate.MIN, true, true, true, new Project()),
+                      new Job(JobStatus.COMPLETED, "sadasd5", "sadsad", "33dad", "asdsada3423",
+                            "asd54as5d", "sadasd", "sasadsa", "asddasdll", "sadasd", LocalDate.MAX, LocalDate.MIN, true, true, true, new Project()),
+                       new Job(JobStatus.COMPLETED, "sadasd6", "sadsad", "33dad", "asdsada3423",
+                            "asd54as5d", "sadasd", "sasadsa", "asddasdll", "sadasd", LocalDate.MAX, LocalDate.MIN, true, true, true, new Project()),
+
+                                new Job(JobStatus.COMPLETED, "sadasd7", "sadsad", "33dad", "asdsada3423",
+                            "asd54as5d", "sadasd", "sasadsa", "asddasdll", "sadasd", LocalDate.MAX, LocalDate.MIN, true, true, true, new Project()),
+                     new Job(JobStatus.COMPLETED, "sadasd8", "sadsad", "33dad", "asdsada3423",
+                            "asd54as5d", "sadasd", "sasadsa4", "asddasdll", "sadasd", LocalDate.MAX, LocalDate.MIN, true, true, true, new Project()),
+                      new Job(JobStatus.COMPLETED, "sadasd9", "sadsad", "33dad", "asdsada3423",
+                            "asd54as5d", "sadasd", "sasadsa", "asddasdll", "sadasd", LocalDate.MAX, LocalDate.MIN, true, true, true, new Project()),
+                       new Job(JobStatus.COMPLETED, "sadasd10", "sadsad", "33dad", "asdsada3423",
+                            "asd54as5d", "sadasd", "sasadsa", "asddasdll", "sadasd", LocalDate.MAX, LocalDate.MIN, true, true, true, new Project())
+
+                     
+
+            );
 //    static List<Inventory> inventoryList = new ArrayList();
 
     //----Job Function----
@@ -45,12 +67,14 @@ public class Container {
     }
 
     public static Job GetJob(int index) {
-        return jobList.get(index);
+        Job j = null;
+        if (index >= 0 && index < jobList.size() )
+            j = jobList.get(index);
+        return j;
 //        DBHandle.GetConn().Test("Yolo");
     }
-    
+
     //--------------------    
-    
     //----Inventory Function----
     public static void AddInventory(Inventory job) {
         inventoryList.add(job);
@@ -68,30 +92,21 @@ public class Container {
     }
 
     public static Inventory GetInventory(int index) {
-        return inventoryList.get(index);
+         Inventory j = null;
+        if (index >= 0 && index < inventoryList.size() )
+            j = inventoryList.get(index);
+        return j;
+       
 //        DBHandle.GetConn().Test("Yolo");
     }
-    
+
     //--------------------       
-
-    public static Object[] LoadJobs() {
- String [] arr = new String[jobList.size()];
-        
-        for (int i = 0; i < jobList.size(); i++) {
-            arr[i] = jobList.get(i).jobWorkOrder;
-        }
-        
-        return arr;    }
-
-    public static Object[] LoadInventories() {
-        String [] arr = new String[inventoryList.size()];
-        
-        for (int i = 0; i < inventoryList.size(); i++) {
-//            arr[i] = inventoryList.get(i).inventoryBatch;
-        }
-        
-        return arr;
+    public static ObservableList<Job> LoadJobs() {
+        return jobList;
     }
-    
-    
+
+    public static ObservableList<Inventory> LoadInventories() {
+        return inventoryList;
+    }
+
 }

@@ -7,6 +7,8 @@ package model;
 
 import com.mongodb.BasicDBObject;
 import java.time.LocalDate;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 
 /**
  *
@@ -16,7 +18,7 @@ public class Job {
 
     public JobStatus selectedStatus;
 
-    public String jobWorkOrder;
+    public SimpleStringProperty jobWorkOrder;
 
     public String jobClient;
 
@@ -35,13 +37,13 @@ public class Job {
     public boolean jobRemoval;
     public boolean jobDisposal;
 
-  
+    public SimpleStringProperty jobMaterial = new SimpleStringProperty("");
     ///////////////////////////////////////////////////////////////////////////
-    public Project project;
+    public SimpleObjectProperty<Project> project;
 
     public Job() {
         selectedStatus = JobStatus.NONE;
-        project = new Project();
+        project = new SimpleObjectProperty<>();
     }
 
     public Job(JobStatus selectedStatus, String jobWorkOrder, String jobClient, String jobAddress, String jobPostalCode, 
@@ -49,7 +51,7 @@ public class Job {
             LocalDate jobTemplateDate, LocalDate jobInstallDate, boolean jobInvoiced, boolean jobRemoval,
             boolean jobDisposal, Project project) {
         this.selectedStatus = selectedStatus;
-        this.jobWorkOrder = jobWorkOrder;
+        this.jobWorkOrder = new SimpleStringProperty(jobWorkOrder);
         this.jobClient = jobClient;
         this.jobAddress = jobAddress;
         this.jobPostalCode = jobPostalCode;
@@ -63,11 +65,32 @@ public class Job {
         this.jobInvoiced = jobInvoiced;
         this.jobRemoval = jobRemoval;
         this.jobDisposal = jobDisposal;
-        this.project = project;
+        this.project = new SimpleObjectProperty<>(project);
+        
+        this.jobMaterial = this.project.get().getJobMaterial();
     }
 
     public BasicDBObject toBasicDBObject() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public String toString() {
+        return jobWorkOrder.get(); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public String getJobWorkOrder() {
+        return jobWorkOrder.get();
+    }
+
+    public String getProject() {
+        return project.getName();
+    }
+
+    public String getJobMaterial() {
+        return jobMaterial.get();
+    }
+    
+    
    
 }
