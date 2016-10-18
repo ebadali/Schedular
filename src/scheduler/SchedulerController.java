@@ -1,11 +1,12 @@
 /*
  * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
+ * To change this install file, choose Tools | Templates
  * and open the template in the editor.
  */
 package scheduler;
 
 import java.net.URL;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
@@ -15,13 +16,16 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.control.TableColumn.CellDataFeatures;
+import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import javafx.util.converter.DoubleStringConverter;
 import model.Container;
 import model.Inventory;
+import model.InventoryTransaction;
 import model.Job;
 import model.JobStatus;
 import model.Project;
@@ -150,10 +154,28 @@ public class SchedulerController implements Initializable {
 
     @FXML
     TableView templateTable;
+
     @FXML
     TableColumn templateWorkOrderCol;
     @FXML
     TableColumn templateMaterialCol;
+
+    // -------------- Install -------------
+    @FXML
+    TableView installList11, installList12, installList13, installList14;
+    @FXML
+    TableView installList20, installList21, installList22, installList23, installList24;
+    @FXML
+    TableView installList30, installList31, installList32, installList33, installList34;
+    @FXML
+    TableView installList40, installList41, installList42, installList43, installList44;
+
+    @FXML
+    TableView installTable;
+    @FXML
+    TableColumn installWorkOrderCol;
+    @FXML
+    TableColumn installMaterialCol;
 
     //    -------Job Setup Callbacks--------
     @FXML
@@ -192,16 +214,18 @@ public class SchedulerController implements Initializable {
     //    --------- Job Specific Functions -------------
     Job getDisplayJob() {
         int rowcount = jobStatus.getSelectionModel().getSelectedIndex();
-        System.out.println(rowcount);
+       
         JobStatus jb = Util.GetJobStatus(jobStatus.getSelectionModel().getSelectedItem());
         System.out.println(jb.name());
 
         Project project = getDisplayProject();
-
+         System.out.println("Fine project");
         Job job = new Job(jb, jobWorkOrder.getText(), jobClient.getText(), jobAddress.getText(),
                 jobPostalCode.getText(), jobContact.getText(), jobSite.getText(), jobSuperSite.getText(), jobSalesperson.getText(),
                 jobWorkOrderComments.getText(), jobTemplateDate.getValue(), jobInstallDate.getValue(), jobInvoiced.isSelected(), jobRemoval.isSelected(),
                 jobDisposal.isSelected(), project);
+                 System.out.println("Fine job");
+
         return job;
     }
 
@@ -209,7 +233,7 @@ public class SchedulerController implements Initializable {
 
         Project project = new Project(jobProject.getText(), jobThickness.getText(), jobMaterial.getText(), jobSupplier.getText(), jobTagNum.getText(),
                 jobEdgeProfile.getText(), jobSink.getText(),
-                jobSinkQty.getText(), jobFaucet.getText(), jobFaucetQty.getText(), jobStove.getText(), jobSqft.getText(),
+                jobSinkQty.getText(), jobFaucet.getText(), jobFaucetQty.getText(), jobStove.getText(), GetDouble(jobSqft),
                 jobProjectComments.getText(), jobInShop.isSelected(), jobInAtHome.isSelected(), jobTemplateOnly.isSelected());
         return project;
     }
@@ -253,25 +277,25 @@ public class SchedulerController implements Initializable {
     }
 
     void setDisplayJob(Job job) {
-        jobProject.setText(job.project.get().jobProject);
-        jobThickness.setText(job.project.get().jobThickness);
-        jobMaterial.setText(job.project.get().jobMaterial.get());
-        jobSupplier.setText(job.project.get().jobSupplier);
-        jobTagNum.setText(job.project.get().jobTagNum);
-        jobEdgeProfile.setText(job.project.get().jobEdgeProfile);
-        jobSink.setText(job.project.get().jobSink);
-        jobSinkQty.setText(job.project.get().jobSinkQty);
-        jobFaucet.setText(job.project.get().jobFaucet);
-        jobFaucetQty.setText(job.project.get().jobFaucetQty);
-        jobStove.setText(job.project.get().jobStove);
-        jobSqft.setText(job.project.get().jobSqft);
-        jobProjectComments.setText(job.project.get().jobProjectComments);
+        jobProject.setText(job.project.jobProject);
+        jobThickness.setText(job.project.jobThickness);
+        jobMaterial.setText(job.project.jobMaterial);
+        jobSupplier.setText(job.project.jobSupplier);
+        jobTagNum.setText(job.project.jobTagNum);
+        jobEdgeProfile.setText(job.project.jobEdgeProfile);
+        jobSink.setText(job.project.jobSink);
+        jobSinkQty.setText(job.project.jobSinkQty);
+        jobFaucet.setText(job.project.jobFaucet);
+        jobFaucetQty.setText(job.project.jobFaucetQty);
+        jobStove.setText(job.project.jobStove);
+        jobSqft.setText(job.project.jobSqft + "");
+        jobProjectComments.setText(job.project.jobProjectComments);
         // To fix it.
-        jobInShop.setSelected(job.project.get().jobInShop);
-        jobInAtHome.setSelected(job.project.get().jobInAtHome);
-        jobTemplateOnly.setSelected(job.project.get().jobTemplateOnly);
+        jobInShop.setSelected(job.project.jobInShop);
+        jobInAtHome.setSelected(job.project.jobInAtHome);
+        jobTemplateOnly.setSelected(job.project.jobTemplateOnly);
 
-        jobWorkOrder.setText(job.jobWorkOrder.get());
+        jobWorkOrder.setText(job.jobWorkOrder);
         jobClient.setText(job.jobClient);
         jobAddress.setText(job.jobAddress);
         jobPostalCode.setText(job.jobPostalCode);
@@ -337,13 +361,13 @@ public class SchedulerController implements Initializable {
     }
 
 //    --------- Inventory Specific Functions -------------
-    Inventory getDisplayInventory() {
+    InventoryTransaction getDisplayInventory() {
         Double d = 0.0;
         try {
             d = Double.parseDouble(inventorySqft.getText());
         } catch (Exception ex) {
         }
-        Inventory inv = new Inventory(inventoryBatch.getText(), inventoryMaterial.getText(), inventoryThickness.getText(),
+        InventoryTransaction inv = new InventoryTransaction(inventoryBatch.getText(), inventoryMaterial.getText(), inventoryThickness.getText(),
                 d, "");
 //        return job;
         return inv;
@@ -358,7 +382,7 @@ public class SchedulerController implements Initializable {
 
     }
 
-    void setDisplayInventory(Inventory invt) {
+    void setDisplayInventory(InventoryTransaction invt) {
         inventoryMaterial.setText(invt.getInventoryMaterial().toString());
         inventoryBatch.setText(invt.getInventoryBatch().toString());
 
@@ -368,30 +392,32 @@ public class SchedulerController implements Initializable {
     }
 
     void RemoveInventory() {
-        int index = inventoryTable.getSelectionModel().getSelectedIndex();
-
-        if (index > -1 && index < inventoryTable.getItems().size()) {
-            Container.RemoveInventory(index);
-        }
+//        int index = inventoryTable.getSelectionModel().getSelectedIndex();
+//
+//        if (index > -1 && index < inventoryTable.getItems().size()) {
+//            Container.RemoveInventoryTransaction(index);
+//        }
 
     }
 
     void AddInventory() {
-        Inventory inventory = getDisplayInventory();
-        int index = inventoryTable.getSelectionModel().getSelectedIndex();
+        InventoryTransaction inventory = getDisplayInventory();
 
-        if (index > -1 && index < inventoryTable.getItems().size() && inventoryTable.getSelectionModel().isSelected(index)) {
-            // Replace Existing.
-//            Container.jobList.set(index, job);
-            Container.SetInventory(index, inventory);
-//            inventoryTable.getItems().set(index, inventory.inventoryBatch);
-        } else if (ValidationLayer.IsValidInventory(inventory)) {
+        if (ValidationLayer.IsValidInventory(inventory)) {
             System.out.println("Validation Layer");
-            Container.AddInventory(inventory);
-//            Container.jobList.add(job);
-//            inventoryTable.getItems().add(arr)
-//            inventoryTable.getItems().add(inventory.inventoryBatch);
+            Container.AddInventoryTransaction(inventory);
+
         }
+//        int index = inventoryHistTable.getSelectionModel().getSelectedIndex();
+//
+//        if (index > -1 && index < inventoryHistTable.getItems().size() && inventoryHistTable.getSelectionModel().isSelected(index)) {
+//            // Replace Existing.
+//            Container.SetInventory(index, inventory);
+//        } else if (ValidationLayer.IsValidInventory(inventory)) {
+//            System.out.println("Validation Layer");
+//            Container.AddInventory(inventory);
+//
+//        }
 
     }
 
@@ -401,7 +427,7 @@ public class SchedulerController implements Initializable {
 
         if (index > -1 && index < inventoryTable.getItems().size()) {
 
-            setDisplayInventory(Container.GetInventory(index));
+            setDisplayInventory(Container.GetInventoryTransaction(index));
 
         }
 
@@ -412,7 +438,7 @@ public class SchedulerController implements Initializable {
     private void handleInventoryAddAction(ActionEvent event) {
         System.out.println("You clicked me!");
         label.setText("Hello World!");
-        inventoryTable.getSelectionModel().select(-1);
+        inventoryHistTable.getSelectionModel().select(-1);
 //        clearDisplayInventory();
         clearDisplayInventory();
     }
@@ -421,14 +447,13 @@ public class SchedulerController implements Initializable {
     private void handleInventoryDeleteAction(ActionEvent event) {
         System.out.println("You clicked me!");
         label.setText("Hello World!");
-        RemoveInventory();
     }
 
     @FXML
     private void handleInventoryCopyAction(ActionEvent event) {
         System.out.println("You clicked me!");
         label.setText("Hello World!");
-        inventoryTable.getSelectionModel().select(-1);
+        inventoryHistTable.getSelectionModel().select(-1);
 
         AddInventory();
 
@@ -564,16 +589,18 @@ public class SchedulerController implements Initializable {
                 }
             }
         }));
-//        inventoryThickness.setTextFormatter( new TextFormatter<>(new DoubleStringConverter(), 0.0, new UnaryOperator<TextFormatter.Change>() {
-//            @Override
-//            public TextFormatter.Change apply(TextFormatter.Change t) {
-//                //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//                String newText = t.getControlNewText() ;
-//                if (validDoubleText.matcher(newText).matches()) {
-//                    return t ;
-//                } else return null ;
-//            }
-//        }));
+        jobSqft.setTextFormatter(new TextFormatter<>(new DoubleStringConverter(), 0.0, new UnaryOperator<TextFormatter.Change>() {
+            @Override
+            public TextFormatter.Change apply(TextFormatter.Change t) {
+                //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                String newText = t.getControlNewText();
+                if (validDoubleText.matcher(newText).matches()) {
+                    return t;
+                } else {
+                    return null;
+                }
+            }
+        }));
 
         mainTabPane.getSelectionModel().selectedItemProperty().addListener(
                 new ChangeListener<Tab>() {
@@ -613,89 +640,168 @@ public class SchedulerController implements Initializable {
     }
 
     private void LoadTemplate() {
-         templateMaterialCol.setCellValueFactory(
+        templateMaterialCol.setCellValueFactory(
                 new PropertyValueFactory<Job, String>("jobMaterial")
         );
         templateWorkOrderCol.setCellValueFactory(
                 new PropertyValueFactory<Job, String>("jobWorkOrder")
         );
-       
 
-//        templateMaterialCol.setCellValueFactory(
-//                new PropertyValueFactory<Project, String>("project")
-//        );
         templateTable.setItems(Container.LoadJobs());
-        
+
 //        Their will be many like these.
 //        1st Row.
-        templateList11.setItems(Container.LoadJobs());        templateList11.getColumns().addAll(templateTable.getColumns());
-        
-        templateList12.setItems(Container.LoadJobs());        templateList12.getColumns().addAll(templateTable.getColumns());
+        templateList11.setItems(Container.LoadJobs());
+        templateList12.setItems(Container.LoadJobs());
+        templateList13.setItems(Container.LoadJobs());
+        templateList14.setItems(Container.LoadJobs());
 
-        templateList13.setItems(Container.LoadJobs());        templateList13.getColumns().addAll(templateTable.getColumns());
-
-        templateList14.setItems(Container.LoadJobs());        templateList14.getColumns().addAll(templateTable.getColumns());
-
-        
-
-        //        2nd Row.
-        templateList20.setItems(Container.LoadJobs());        templateList20.getColumns().addAll(templateTable.getColumns());
-
-        templateList21.setItems(Container.LoadJobs());        templateList21.getColumns().addAll(templateTable.getColumns());
-
-        templateList22.setItems(Container.LoadJobs());        templateList22.getColumns().addAll(templateTable.getColumns());
-
-        templateList23.setItems(Container.LoadJobs());        templateList23.getColumns().addAll(templateTable.getColumns());
-
-        templateList24.setItems(Container.LoadJobs());        templateList24.getColumns().addAll(templateTable.getColumns());
-
+//
+//        //        2nd Row.
+        templateList20.setItems(Container.LoadJobs());
+        templateList21.setItems(Container.LoadJobs());
+        templateList22.setItems(Container.LoadJobs());
+        templateList23.setItems(Container.LoadJobs());
+        templateList24.setItems(Container.LoadJobs());
 
         //        3rd Row.
-        templateList30.setItems(Container.LoadJobs());templateList30.getColumns().addAll(templateTable.getColumns());
-        templateList31.setItems(Container.LoadJobs());templateList31.getColumns().addAll(templateTable.getColumns());
-        templateList32.setItems(Container.LoadJobs());templateList32.getColumns().addAll(templateTable.getColumns());
-        templateList33.setItems(Container.LoadJobs());templateList33.getColumns().addAll(templateTable.getColumns());
-        templateList34.setItems(Container.LoadJobs());templateList34.getColumns().addAll(templateTable.getColumns());
+        templateList30.setItems(Container.LoadJobs());
+        templateList31.setItems(Container.LoadJobs());
+        templateList32.setItems(Container.LoadJobs());
+        templateList33.setItems(Container.LoadJobs());
+        templateList34.setItems(Container.LoadJobs());
 
         //        4th Row.
-        templateList40.setItems(Container.LoadJobs());templateList40.getColumns().addAll(templateTable.getColumns());
-        templateList41.setItems(Container.LoadJobs());templateList41.getColumns().addAll(templateTable.getColumns());
-        templateList42.setItems(Container.LoadJobs());templateList42.getColumns().addAll(templateTable.getColumns());
-        templateList43.setItems(Container.LoadJobs());templateList43.getColumns().addAll(templateTable.getColumns());
-        templateList44.setItems(Container.LoadJobs());templateList44.getColumns().addAll(templateTable.getColumns());
+        templateList40.setItems(Container.LoadJobs());
+        templateList41.setItems(Container.LoadJobs());
+        templateList42.setItems(Container.LoadJobs());
+        templateList43.setItems(Container.LoadJobs());
+        templateList44.setItems(Container.LoadJobs());
 
+        if (templateList11.getColumns().isEmpty()) {
+
+            templateList11.getColumns().addAll(templateTable.getColumns());
+            templateList12.getColumns().addAll(templateTable.getColumns());
+            templateList13.getColumns().addAll(templateTable.getColumns());
+            templateList14.getColumns().addAll(templateTable.getColumns());
+
+            templateList20.getColumns().addAll(templateTable.getColumns());
+            templateList21.getColumns().addAll(templateTable.getColumns());
+            templateList22.getColumns().addAll(templateTable.getColumns());
+            templateList23.getColumns().addAll(templateTable.getColumns());
+            templateList24.getColumns().addAll(templateTable.getColumns());
+
+            templateList30.getColumns().addAll(templateTable.getColumns());
+            templateList31.getColumns().addAll(templateTable.getColumns());
+            templateList32.getColumns().addAll(templateTable.getColumns());
+            templateList33.getColumns().addAll(templateTable.getColumns());
+            templateList34.getColumns().addAll(templateTable.getColumns());
+
+            templateList40.getColumns().addAll(templateTable.getColumns());
+            templateList41.getColumns().addAll(templateTable.getColumns());
+            templateList42.getColumns().addAll(templateTable.getColumns());
+            templateList43.getColumns().addAll(templateTable.getColumns());
+            templateList44.getColumns().addAll(templateTable.getColumns());
+        }
     }
 
     private void LoadInstall() {
+
+        installMaterialCol.setCellValueFactory(
+                new PropertyValueFactory<Job, String>("jobMaterial")
+        );
+        installWorkOrderCol.setCellValueFactory(
+                new PropertyValueFactory<Job, String>("jobWorkOrder")
+        );
+
+        installTable.setItems(Container.LoadJobs());
+
+//        Their will be many like these.
+//        1st Row.
+        installList11.setItems(Container.LoadJobs());
+        installList12.setItems(Container.LoadJobs());
+        installList13.setItems(Container.LoadJobs());
+        installList14.setItems(Container.LoadJobs());
+
+//
+//        //        2nd Row.
+        installList20.setItems(Container.LoadJobs());
+        installList21.setItems(Container.LoadJobs());
+        installList22.setItems(Container.LoadJobs());
+        installList23.setItems(Container.LoadJobs());
+        installList24.setItems(Container.LoadJobs());
+
+        //        3rd Row.
+        installList30.setItems(Container.LoadJobs());
+        installList31.setItems(Container.LoadJobs());
+        installList32.setItems(Container.LoadJobs());
+        installList33.setItems(Container.LoadJobs());
+        installList34.setItems(Container.LoadJobs());
+
+        //        4th Row.
+        installList40.setItems(Container.LoadJobs());
+        installList41.setItems(Container.LoadJobs());
+        installList42.setItems(Container.LoadJobs());
+        installList43.setItems(Container.LoadJobs());
+        installList44.setItems(Container.LoadJobs());
+
+        if (installList11.getColumns().isEmpty()) {
+
+            installList11.getColumns().addAll(installTable.getColumns());
+            installList12.getColumns().addAll(installTable.getColumns());
+            installList13.getColumns().addAll(installTable.getColumns());
+            installList14.getColumns().addAll(installTable.getColumns());
+
+            installList20.getColumns().addAll(installTable.getColumns());
+            installList21.getColumns().addAll(installTable.getColumns());
+            installList22.getColumns().addAll(installTable.getColumns());
+            installList23.getColumns().addAll(installTable.getColumns());
+            installList24.getColumns().addAll(installTable.getColumns());
+
+            installList30.getColumns().addAll(installTable.getColumns());
+            installList31.getColumns().addAll(installTable.getColumns());
+            installList32.getColumns().addAll(installTable.getColumns());
+            installList33.getColumns().addAll(installTable.getColumns());
+            installList34.getColumns().addAll(installTable.getColumns());
+
+            installList40.getColumns().addAll(installTable.getColumns());
+            installList41.getColumns().addAll(installTable.getColumns());
+            installList42.getColumns().addAll(installTable.getColumns());
+            installList43.getColumns().addAll(installTable.getColumns());
+            installList44.getColumns().addAll(templateTable.getColumns());
+        }
     }
 
     private void LoadInvntory() {
-        inventorySqftCol.setCellValueFactory(
-                new PropertyValueFactory<Inventory, Double>("inventorySqft")
+        inventorySqftCol.setCellValueFactory(new PropertyValueFactory<Inventory, String>("inventorySqft")
         );
-        inventoryMaterialCol.setCellValueFactory(
-                new PropertyValueFactory<Inventory, String>("inventoryMaterial")
+        inventoryMaterialCol.setCellValueFactory(new PropertyValueFactory<Inventory, String>("inventoryMaterial")
         );
-
         inventoryTable.setItems(Container.LoadInventories());
-        inventoryHistTable.setItems(Container.LoadInventories());
 
-        inventoryMaterialHistCol.setCellValueFactory(
-                new PropertyValueFactory<Inventory, String>("inventoryMaterial")
+        inventoryHistTable.setItems(Container.LoadInventoriesTransaction());
+
+        inventoryMaterialHistCol.setCellValueFactory(new PropertyValueFactory<InventoryTransaction, String>("inventoryMaterial")
         );
-        inventoryThicknessHistCol.setCellValueFactory(
-                new PropertyValueFactory<Inventory, String>("inventoryThickness")
+        inventoryThicknessHistCol.setCellValueFactory(new PropertyValueFactory<InventoryTransaction, String>("inventoryThickness")
         );
-        inventorySqftHistCol.setCellValueFactory(
-                new PropertyValueFactory<Inventory, String>("inventorySqft")
+        inventorySqftHistCol.setCellValueFactory(new PropertyValueFactory<InventoryTransaction, String>("inventorySqft")
         );
-        inventoryBatchHistCol.setCellValueFactory(
-                new PropertyValueFactory<Inventory, String>("inventoryBatch")
+        inventoryBatchHistCol.setCellValueFactory(new PropertyValueFactory<InventoryTransaction, String>("inventoryBatch")
         );
-        inventoryPicHist.setCellValueFactory(
-                new PropertyValueFactory<Inventory, String>("inventoryPicture")
+        inventoryPicHist.setCellValueFactory(new PropertyValueFactory<InventoryTransaction, String>("inventoryPicture")
         );
 
+    }
+
+    private Double GetDouble(TextField jobSqft) {
+        Double d = 0.0;
+        try{
+           d= Double.parseDouble(jobSqft.getText());
+        }catch(Exception ex){
+        
+        }
+        return d;
     }
 
 }

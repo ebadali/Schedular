@@ -16,7 +16,7 @@ public class ValidationLayer {
         return true;
     }
 
-    public static boolean IsValidInventory(Inventory inventory) {
+    public static boolean IsValidInventory(InventoryTransaction inventory) {
         return true;
     }
 }

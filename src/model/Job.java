@@ -6,9 +6,15 @@
 package model;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.util.JSON;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import org.bson.Document;
 
 /**
  *
@@ -16,9 +22,9 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class Job {
 
-    public JobStatus selectedStatus;
+    public JobStatus selectedStatus = JobStatus.NONE;
 
-    public SimpleStringProperty jobWorkOrder;
+    public String jobWorkOrder = new String("");
 
     public String jobClient;
 
@@ -37,21 +43,21 @@ public class Job {
     public boolean jobRemoval;
     public boolean jobDisposal;
 
-    public SimpleStringProperty jobMaterial = new SimpleStringProperty("");
+    public String jobMaterial = new String("");
     ///////////////////////////////////////////////////////////////////////////
-    public SimpleObjectProperty<Project> project;
+    public Project project = new Project();
 
     public Job() {
         selectedStatus = JobStatus.NONE;
-        project = new SimpleObjectProperty<>();
     }
 
-    public Job(JobStatus selectedStatus, String jobWorkOrder, String jobClient, String jobAddress, String jobPostalCode, 
+    public Job(JobStatus selectedStatus, String jobWorkOrder, String jobClient, String jobAddress, String jobPostalCode,
             String jobContact, String jobSite, String jobSuperSite, String jobSalesperson, String jobWorkOrderComments,
             LocalDate jobTemplateDate, LocalDate jobInstallDate, boolean jobInvoiced, boolean jobRemoval,
             boolean jobDisposal, Project project) {
+
         this.selectedStatus = selectedStatus;
-        this.jobWorkOrder = new SimpleStringProperty(jobWorkOrder);
+        this.jobWorkOrder = (jobWorkOrder);
         this.jobClient = jobClient;
         this.jobAddress = jobAddress;
         this.jobPostalCode = jobPostalCode;
@@ -65,32 +71,90 @@ public class Job {
         this.jobInvoiced = jobInvoiced;
         this.jobRemoval = jobRemoval;
         this.jobDisposal = jobDisposal;
-        this.project = new SimpleObjectProperty<>(project);
-        
-        this.jobMaterial = this.project.get().getJobMaterial();
+        this.project = (project);
+
+        this.jobMaterial = this.project.getJobMaterial();
     }
 
-    public BasicDBObject toBasicDBObject() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Job(Document obj) {
+
+        selectedStatus = JobStatus.fromString(obj.getString("selectedStatus"));
+
+        jobWorkOrder = (obj.getString("jobWorkOrder"));
+        jobClient = obj.getString("jobClient");
+        jobAddress = obj.getString("jobAddress");
+        jobPostalCode = obj.getString("jobPostalCode");
+        jobContact = obj.getString("jobContact");
+        jobSite = obj.getString("jobSite");
+        jobSuperSite = obj.getString("jobSuperSite");
+        jobSalesperson = obj.getString("jobSalesperson");
+        jobWorkOrderComments = obj.getString("jobWorkOrderComments");
+
+        jobTemplateDate = getFixedDate(obj.getString("jobTemplateDate"));//.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();;
+        jobInstallDate = getFixedDate(obj.getString("jobInstallDate"));//.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        jobInvoiced = obj.getBoolean("jobInvoiced", false);
+        jobRemoval = obj.getBoolean("jobRemoval", false);
+        jobDisposal = obj.getBoolean("jobDisposal", false);
+
+        project = new Project(obj.get("project", Document.class));
+        jobWorkOrderComments = project.jobMaterial;
+    }
+
+    public LocalDate getFixedDate(String str) {
+        LocalDate parsedDate = LocalDate.MAX;
+        if (str != "" && str != null ) {
+            LocalDate date = LocalDate.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM dd");
+            String text = date.format(formatter);
+            parsedDate = LocalDate.parse(text, formatter);
+        }
+        return parsedDate;
+    }
+
+    public Document toBasicDBObject() {
+        String s1= "", s2="";
+        try{
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM dd");
+        s1 = jobTemplateDate.format(formatter);
+        s2 = jobInstallDate.format(formatter);
+        }catch(Exception ex)
+        {
+        }
+        return new Document()
+                .append("selectedStatus", selectedStatus.name())
+                .append("jobWorkOrder", jobWorkOrder)
+                .append("jobClient", jobClient)
+                .append("jobAddress", jobAddress)
+                .append("jobPostalCode", jobPostalCode)
+                .append("jobContact", jobContact)
+                .append("jobSuperSite", jobSuperSite)
+                .append("jobSalesperson", jobSalesperson)
+                .append("jobWorkOrderComments", jobWorkOrderComments)
+                .append("jobTemplateDate", s1)
+                .append("jobInstallDate", s2)
+                .append("jobInvoiced", jobInvoiced)
+                .append("jobRemoval", jobRemoval)
+                .append("jobDisposal", jobDisposal)
+                .append("jobMaterial", jobMaterial)
+                .append("project", project.toDocument());
     }
 
     @Override
     public String toString() {
-        return jobWorkOrder.get(); //To change body of generated methods, choose Tools | Templates.
+        return jobWorkOrder; //To change body of generated methods, choose Tools | Templates.
     }
 
     public String getJobWorkOrder() {
-        return jobWorkOrder.get();
+        return jobWorkOrder;
     }
 
     public String getProject() {
-        return project.getName();
+        return project.getJobMaterial();
     }
 
     public String getJobMaterial() {
-        return jobMaterial.get();
+        return jobMaterial;
     }
-    
-    
-   
+
 }

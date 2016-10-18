@@ -5,7 +5,9 @@
  */
 package model;
 
+import com.mongodb.BasicDBObject;
 import javafx.beans.property.SimpleStringProperty;
+import org.bson.Document;
 
 /**
  *
@@ -15,8 +17,8 @@ public class Project {
 
     public String jobProject = "";
     public String jobThickness = "";
-    public SimpleStringProperty jobMaterial = new SimpleStringProperty("");
-    public String jobSupplier;
+    public String jobMaterial = "Z";
+    public String jobSupplier = "";
 
     public String jobTagNum = "";
 
@@ -26,12 +28,12 @@ public class Project {
     public String jobFaucet = "";
     public String jobFaucetQty = "";
     public String jobStove = "";
-    public String jobSqft = "";
+    public Double jobSqft = 0.0;
     public String jobProjectComments = "";
 
     public boolean jobInShop = false;
-    public boolean jobInAtHome;
-    public boolean jobTemplateOnly;
+    public boolean jobInAtHome = false;
+    public boolean jobTemplateOnly = false;
 
     public Project() {
 
@@ -39,11 +41,11 @@ public class Project {
 
     public Project(String jobProject, String jobThickness, String jobMaterial, String jobSupplier, String jobTagNum,
             String jobEdgeProfile, String jobSink, String jobSinkQty, String jobFaucet, String jobFaucetQty,
-            String jobStove, String jobSqft, String jobProjectComments, boolean jobInShop, boolean jobInAtHome,
+            String jobStove, Double jobSqft, String jobProjectComments, boolean jobInShop, boolean jobInAtHome,
             boolean jobTemplateOnly) {
         this.jobProject = jobProject;
         this.jobThickness = jobThickness;
-        this.jobMaterial = new SimpleStringProperty(jobMaterial);
+        this.jobMaterial = (jobMaterial);
         this.jobSupplier = jobSupplier;
         this.jobTagNum = jobTagNum;
         this.jobEdgeProfile = jobEdgeProfile;
@@ -59,13 +61,60 @@ public class Project {
         this.jobTemplateOnly = jobTemplateOnly;
     }
 
-    public SimpleStringProperty getJobMaterial() {
+    Project(Document obj) {
+        
+        this.jobProject = obj.getString("jobProject");
+        this.jobThickness = obj.getString("jobThickness");
+        this.jobMaterial = (obj.getString("jobMaterial"));
+        this.jobSupplier = obj.getString("jobSupplier");
+        this.jobTagNum = obj.getString("jobTagNum");
+        this.jobEdgeProfile = obj.getString("jobEdgeProfile");
+        this.jobSink = obj.getString("jobSink");
+        this.jobSinkQty = obj.getString("jobSinkQty");
+        this.jobFaucet = obj.getString("jobFaucet");
+        this.jobFaucetQty = obj.getString("jobFaucetQty");
+        this.jobStove = obj.getString("jobStove");
+        this.jobSqft = obj.getDouble("jobSqft");
+        this.jobProjectComments = obj.getString("jobProjectComments");
+        this.jobInShop = obj.getBoolean("jobInShop", false);
+        this.jobInAtHome = obj.getBoolean("jobInAtHome", false);
+        this.jobTemplateOnly = obj.getBoolean("jobTemplateOnly", false);
+    }
+        
+    
+
+    public String getJobMaterial() {
         return jobMaterial;
     }
 
     @Override
     public String toString() {
-        return this.jobMaterial.get(); //To change body of generated methods, choose Tools | Templates.
+        return this.jobMaterial; //To change body of generated methods, choose Tools | Templates.
+    }
+
+    Document toDocument() {
+        
+        return  new Document()                    
+                    .append("jobProject", jobProject)
+                    .append("jobThickness", jobThickness)
+                    .append("jobMaterial", jobMaterial)
+                    .append("jobSupplier",jobSupplier)
+                    .append("jobEdgeProfile",jobEdgeProfile)
+                 
+
+                    .append("jobTagNum", jobTagNum)
+                    .append("jobSink", jobSink)
+                    .append("jobSinkQty", jobSinkQty)
+                 
+                    .append("jobFaucet", jobFaucet)
+                    .append("jobFaucetQty", jobFaucetQty)
+                    .append("jobStove",jobStove)
+                    .append("jobSqft", jobSqft)
+                    .append("jobProjectComments", jobProjectComments)
+                    .append("jobInShop", jobInShop)
+                    .append("jobInAtHome", jobInAtHome)
+                    .append("jobTemplateOnly",jobTemplateOnly);
+         
     }
     
     

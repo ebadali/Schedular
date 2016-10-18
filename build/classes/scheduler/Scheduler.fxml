@@ -360,13 +360,13 @@
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
-                                        <TableView fx:id="templateTable" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
+                                        <TableView fx:id="templateTable" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="0">
                                             <columns>
                                                 <TableColumn fx:id="templateWorkOrderCol" prefWidth="109.0" text="Work Order" />
                                                 <TableColumn fx:id="templateMaterialCol" prefWidth="79.0" text="Material" />
                                             </columns>
                                         </TableView>
-                                        <TableView fx:id="templateList11" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="0" />
+                                        <TableView fx:id="templateList11" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" />
                                         <TableView fx:id="templateList12" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" />
                                         <TableView fx:id="templateList13" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3" />
                                         <TableView fx:id="templateList14" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="4" />
@@ -434,13 +434,37 @@
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
-                                        <TableView prefHeight="200.0" prefWidth="200.0">
+                                        <TableView fx:id="installTable" prefHeight="200.0" prefWidth="200.0">
                                             <columns >
-                                                <TableColumn prefWidth="109.0" text="Work Order" />
-                                                <TableColumn prefWidth="79.0" text="Material" />
+                                                <TableColumn fx:id="installWorkOrderCol" prefWidth="109.0" text="Work Order" />
+                                                <TableColumn fx:id="installMaterialCol" prefWidth="79.0" text="Material" />
                                             </columns>
-                                        </TableView>
-                                        <ListView fx:id="installTable" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" />
+                                        </TableView>                   
+                                                             
+                                        <TableView fx:id="installList11" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" />
+                                        <TableView fx:id="installList12" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" />
+                                        <TableView fx:id="installList13" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3" />
+                                        <TableView fx:id="installList14" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="4" />
+                                        
+                                                                        
+                                        <TableView fx:id="installList20" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <TableView fx:id="installList21" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <TableView fx:id="installList22" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                        <TableView fx:id="installList23" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3"  GridPane.rowIndex="1"/>
+                                        <TableView fx:id="installList24" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="4"  GridPane.rowIndex="1"/>
+                                        
+                                        <TableView fx:id="installList30" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <TableView fx:id="installList31" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <TableView fx:id="installList32" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                        <TableView fx:id="installList33" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3"  GridPane.rowIndex="2"/>
+                                        <TableView fx:id="installList34" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="4"  GridPane.rowIndex="2"/>
+                                        
+                                        
+                                        <TableView fx:id="installList40" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <TableView fx:id="installList41" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                        <TableView fx:id="installList42" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                                        <TableView fx:id="installList43" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3"  GridPane.rowIndex="3"/>
+                                        <TableView fx:id="installList44" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="4"  GridPane.rowIndex="3"/>
                                     </children>
                                 </GridPane>
                                 <Button mnemonicParsing="false" text="Back" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" onAction="#handleInstallBackwardAction" >

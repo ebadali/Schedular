@@ -5,8 +5,7 @@
  */
 package model;
 
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleStringProperty;
+import org.bson.Document;
 
 /**
  *
@@ -14,60 +13,40 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class Inventory {
 
-    public SimpleStringProperty  inventoryBatch;
-    public SimpleStringProperty  inventoryMaterial;
-    public SimpleStringProperty  inventoryThickness;
+    public String inventoryMaterial;
+    public double inventorySqft;
 
-    public SimpleDoubleProperty inventorySqft;
-
-    public SimpleStringProperty  inventoryPicture;
-
-    public Inventory(String inventoryBatch, String inventoryMaterial, String inventoryThickness, double inventorySqft,
-            String inventoryPicture ) {
-        this.inventoryBatch =  new SimpleStringProperty(inventoryBatch);
-        this.inventoryMaterial =  new SimpleStringProperty(inventoryMaterial);
-        this.inventoryThickness = new SimpleStringProperty(inventoryThickness);
-        this.inventorySqft = new SimpleDoubleProperty(inventorySqft);
-        this.inventoryPicture = new SimpleStringProperty("");
+    public Inventory(String inventoryMaterial, double inventorySqft) {
+        this.inventoryMaterial = new String(inventoryMaterial);
+        this.inventorySqft = inventorySqft;
     }
-
-    public String getInventoryBatch() {
-        return inventoryBatch.get();
-    }
-//
-//    public void setInventoryBatch(SimpleStringProperty inventoryBatch) {
-//        this.inventoryBatch = inventoryBatch;
-//    }
 
     public String getInventoryMaterial() {
-        return inventoryMaterial.get();
+        return inventoryMaterial;
     }
-
-//    public void setInventoryMaterial(SimpleStringProperty inventoryMaterial) {
-//        this.inventoryMaterial = inventoryMaterial;
-//    }
-
-    public String getInventoryThickness() {
-        return inventoryThickness.get();
-    }
-
-//    public void setInventoryThickness(SimpleStringProperty inventoryThickness) {
-//        this.inventoryThickness = inventoryThickness;
-//    }
-
-    public String getInventoryPicture() {
-        return inventoryPicture.get();
-    }
-
-//    public void setInventoryPicture(SimpleStringProperty inventoryPicture) {
-//        this.inventoryPicture = inventoryPicture;
-//    }
 
     public Double getInventorySqft() {
-        return inventorySqft.get();
+        return inventorySqft;
     }
-   
-    
-    
-    
+
+    public void AddInventorySqft(Double d) {
+        inventorySqft = (inventorySqft + d);
+    }
+
+    public void RemoveInventorySqft(Double d) {
+        inventorySqft=(inventorySqft - d);
+    }
+
+    @Override
+    public String toString() {
+        return "Name " + this.getInventoryMaterial() + " , " + this.getInventorySqft(); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public Document toDocument() {
+        return new Document()
+                .append("inventoryMaterial", inventoryMaterial)
+                .append("inventorySqft", inventorySqft );
+         
+    }
+
 }
