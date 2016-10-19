@@ -5,28 +5,20 @@
  */
 package DBLayer;
 
-import com.mongodb.BasicDBList;
 import com.mongodb.MongoClient;
 
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
 import com.mongodb.BasicDBObject;
 import com.mongodb.Block;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import model.Inventory;
-import model.InventoryTransaction;
 import model.Job;
-import org.apache.commons.beanutils.BeanMap;
 import org.bson.Document;
 
 /**
@@ -182,6 +174,22 @@ public class DBHandle {
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             
+
+        }
+    }
+
+    public void RemoveJob(Job old) {
+        try {
+//            Document doc = new Document().
+//                    append("$set", job.toBasicDBObject());
+
+            System.out.println(old.toBasicDBObject());
+            
+            DeleteResult res = db.getCollection(JOB).deleteOne(old.toBasicDBObject());
+            System.out.println("Document inserted successfully with " + res.toString());
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            System.err.println(e.toString());
 
         }
     }

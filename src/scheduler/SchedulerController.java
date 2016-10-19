@@ -6,22 +6,23 @@
 package scheduler;
 
 import java.net.URL;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
-import javafx.util.StringConverter;
 import javafx.util.converter.DoubleStringConverter;
 import model.Container;
 import model.Inventory;
@@ -160,6 +161,24 @@ public class SchedulerController implements Initializable {
     @FXML
     TableColumn templateMaterialCol;
 
+    @FXML
+    ChoiceBox template_datepicker;
+
+    @FXML
+    private void template_forward(ActionEvent event) {
+        Container.Forward();
+        System.out.println("I am called");
+        System.out.println(Container.from);
+
+        UpdateTemplateCalender();
+    }
+
+    @FXML
+    private void template_backword(ActionEvent event) {
+
+        Container.Backward();
+        UpdateTemplateCalender();
+    }
     // -------------- Install -------------
     @FXML
     TableView installList11, installList12, installList13, installList14;
@@ -177,6 +196,10 @@ public class SchedulerController implements Initializable {
     @FXML
     TableColumn installMaterialCol;
 
+    @FXML
+    ChoiceBox install_datepicker;
+
+//    template
     //    -------Job Setup Callbacks--------
     @FXML
     private void handleJobAddAction(ActionEvent event) {
@@ -214,17 +237,17 @@ public class SchedulerController implements Initializable {
     //    --------- Job Specific Functions -------------
     Job getDisplayJob() {
         int rowcount = jobStatus.getSelectionModel().getSelectedIndex();
-       
+
         JobStatus jb = Util.GetJobStatus(jobStatus.getSelectionModel().getSelectedItem());
         System.out.println(jb.name());
 
         Project project = getDisplayProject();
-         System.out.println("Fine project");
+        System.out.println("Fine project");
         Job job = new Job(jb, jobWorkOrder.getText(), jobClient.getText(), jobAddress.getText(),
                 jobPostalCode.getText(), jobContact.getText(), jobSite.getText(), jobSuperSite.getText(), jobSalesperson.getText(),
                 jobWorkOrderComments.getText(), jobTemplateDate.getValue(), jobInstallDate.getValue(), jobInvoiced.isSelected(), jobRemoval.isSelected(),
                 jobDisposal.isSelected(), project);
-                 System.out.println("Fine job");
+        System.out.println("Fine job");
 
         return job;
     }
@@ -334,7 +357,7 @@ public class SchedulerController implements Initializable {
             Container.SetJob(index, job);
 //            jobTable.getItems().set(index, job.jobWorkOrder);
         } else if (ValidationLayer.IsValidJob(job)) {
-            System.out.println("Validation Layer");
+//            System.out.println("Validation Layer");
             Container.AddJob(job);
 //            Container.jobList.add(job);
 //            jobTable.getItems().add(job.jobWorkOrder);
@@ -353,6 +376,7 @@ public class SchedulerController implements Initializable {
             } else {
                 setDisplayJob(j);
                 System.out.println(j);
+                System.out.println(j.jobTemplateDate);
             }
 
             //            
@@ -463,17 +487,28 @@ public class SchedulerController implements Initializable {
     @FXML
     private void handleTemplateForwardAction(ActionEvent event) {
         System.out.println("You clicked me!");
-        label.setText("Hello World!");
+        Container.Forward();
+        System.out.println("I am called");
+        System.out.println(Container.from);
+
+        UpdateTemplateCalender();
+
     }
 
     @FXML
     private void handleTemplateBackwardAction(ActionEvent event) {
         System.out.println("You clicked me!");
-        label.setText("Hello World!");
+
+        Container.Backward();
+        System.out.println("I am called");
+        System.out.println(Container.from);
+
+        UpdateTemplateCalender();
+
     }
 
     @FXML
-    private void handleTemplateValueChangeAction(ActionEvent event) {
+    private void handleTemplateValueChangeAction(ObservableValue  event, String t, String t1) {
         System.out.println("You clicked me!");
         label.setText("Hello World!");
     }
@@ -639,44 +674,16 @@ public class SchedulerController implements Initializable {
 
     }
 
+    int templateDate = 0;
+
     private void LoadTemplate() {
+
         templateMaterialCol.setCellValueFactory(
                 new PropertyValueFactory<Job, String>("jobMaterial")
         );
         templateWorkOrderCol.setCellValueFactory(
                 new PropertyValueFactory<Job, String>("jobWorkOrder")
         );
-
-        templateTable.setItems(Container.LoadJobs());
-
-//        Their will be many like these.
-//        1st Row.
-        templateList11.setItems(Container.LoadJobs());
-        templateList12.setItems(Container.LoadJobs());
-        templateList13.setItems(Container.LoadJobs());
-        templateList14.setItems(Container.LoadJobs());
-
-//
-//        //        2nd Row.
-        templateList20.setItems(Container.LoadJobs());
-        templateList21.setItems(Container.LoadJobs());
-        templateList22.setItems(Container.LoadJobs());
-        templateList23.setItems(Container.LoadJobs());
-        templateList24.setItems(Container.LoadJobs());
-
-        //        3rd Row.
-        templateList30.setItems(Container.LoadJobs());
-        templateList31.setItems(Container.LoadJobs());
-        templateList32.setItems(Container.LoadJobs());
-        templateList33.setItems(Container.LoadJobs());
-        templateList34.setItems(Container.LoadJobs());
-
-        //        4th Row.
-        templateList40.setItems(Container.LoadJobs());
-        templateList41.setItems(Container.LoadJobs());
-        templateList42.setItems(Container.LoadJobs());
-        templateList43.setItems(Container.LoadJobs());
-        templateList44.setItems(Container.LoadJobs());
 
         if (templateList11.getColumns().isEmpty()) {
 
@@ -703,6 +710,54 @@ public class SchedulerController implements Initializable {
             templateList43.getColumns().addAll(templateTable.getColumns());
             templateList44.getColumns().addAll(templateTable.getColumns());
         }
+
+//        1. Saperate Unique Template Dates.
+//        2. Fill Data From that Date to forward 20.
+        UpdateTemplateCalender();
+    }
+
+    private void UpdateTemplateCalender() {
+        List<LocalDate> j = Container.LoadTemplateDate();
+        System.out.println(j);
+        if (j.size() > 0) {
+            LocalDate first = j.get(0);
+            int index = 0;
+            
+            template_datepicker.setItems(FXCollections.observableArrayList(j));
+
+            templateTable.setItems(Container.LoadJobs());
+
+//            templateTable.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+//        Their will be many like these.
+//        1st Row.
+            templateList11.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            templateList12.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            templateList13.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            templateList14.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+
+//
+//        //        2nd Row.
+            templateList20.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            templateList21.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            templateList22.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            templateList23.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            templateList24.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+
+            //        3rd Row.
+            templateList30.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            templateList31.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            templateList32.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            templateList33.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            templateList34.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+
+            //        4th Row.
+            templateList40.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            templateList41.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            templateList42.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            templateList43.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            templateList44.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+        }
+
     }
 
     private void LoadInstall() {
@@ -713,37 +768,6 @@ public class SchedulerController implements Initializable {
         installWorkOrderCol.setCellValueFactory(
                 new PropertyValueFactory<Job, String>("jobWorkOrder")
         );
-
-        installTable.setItems(Container.LoadJobs());
-
-//        Their will be many like these.
-//        1st Row.
-        installList11.setItems(Container.LoadJobs());
-        installList12.setItems(Container.LoadJobs());
-        installList13.setItems(Container.LoadJobs());
-        installList14.setItems(Container.LoadJobs());
-
-//
-//        //        2nd Row.
-        installList20.setItems(Container.LoadJobs());
-        installList21.setItems(Container.LoadJobs());
-        installList22.setItems(Container.LoadJobs());
-        installList23.setItems(Container.LoadJobs());
-        installList24.setItems(Container.LoadJobs());
-
-        //        3rd Row.
-        installList30.setItems(Container.LoadJobs());
-        installList31.setItems(Container.LoadJobs());
-        installList32.setItems(Container.LoadJobs());
-        installList33.setItems(Container.LoadJobs());
-        installList34.setItems(Container.LoadJobs());
-
-        //        4th Row.
-        installList40.setItems(Container.LoadJobs());
-        installList41.setItems(Container.LoadJobs());
-        installList42.setItems(Container.LoadJobs());
-        installList43.setItems(Container.LoadJobs());
-        installList44.setItems(Container.LoadJobs());
 
         if (installList11.getColumns().isEmpty()) {
 
@@ -769,6 +793,51 @@ public class SchedulerController implements Initializable {
             installList42.getColumns().addAll(installTable.getColumns());
             installList43.getColumns().addAll(installTable.getColumns());
             installList44.getColumns().addAll(templateTable.getColumns());
+        }
+
+        UpdateInstallCalender();
+    }
+
+    private void UpdateInstallCalender() {
+        List<LocalDate> j = Container.LoadTemplateDate();
+
+        System.out.println(j);
+
+        if (j.size() > 0) {
+            LocalDate first = j.get(0);
+            int index = 0;
+
+            installTable.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+
+//        Their will be many like these.
+//        1st Row.
+            installList11.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            installList12.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            installList13.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            installList14.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+
+//
+//        //        2nd Row.
+            installList20.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            installList21.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            installList22.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            installList23.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            installList24.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+
+            //        3rd Row.
+            installList30.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            installList31.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            installList32.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            installList33.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            installList34.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+
+            //        4th Row.
+            installList40.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            installList41.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            installList42.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            installList43.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+            installList44.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
+
         }
     }
 
@@ -796,12 +865,18 @@ public class SchedulerController implements Initializable {
 
     private Double GetDouble(TextField jobSqft) {
         Double d = 0.0;
-        try{
-           d= Double.parseDouble(jobSqft.getText());
-        }catch(Exception ex){
-        
+        try {
+            d = Double.parseDouble(jobSqft.getText());
+        } catch (Exception ex) {
+
         }
         return d;
+    }
+
+    final int TWENTY = 20;
+
+    private LocalDate GetRange(LocalDate d) {
+        return d.plusDays(TWENTY);
     }
 
 }

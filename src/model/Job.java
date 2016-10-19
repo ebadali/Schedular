@@ -5,15 +5,8 @@
  */
 package model;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.util.JSON;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import org.bson.Document;
 
 /**
@@ -24,7 +17,7 @@ public class Job {
 
     public JobStatus selectedStatus = JobStatus.NONE;
 
-    public String jobWorkOrder = new String("");
+    public String jobWorkOrder = ("");
 
     public String jobClient;
 
@@ -43,7 +36,7 @@ public class Job {
     public boolean jobRemoval;
     public boolean jobDisposal;
 
-    public String jobMaterial = new String("");
+    public String jobMaterial = ("");
     ///////////////////////////////////////////////////////////////////////////
     public Project project = new Project();
 
@@ -103,11 +96,11 @@ public class Job {
 
     public LocalDate getFixedDate(String str) {
         LocalDate parsedDate = LocalDate.MAX;
-        if (str != "" && str != null ) {
-            LocalDate date = LocalDate.now();
+        if (str != "" && str != null && !str.isEmpty() ) {
+//            LocalDate date = LocalDate.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM dd");
-            String text = date.format(formatter);
-            parsedDate = LocalDate.parse(text, formatter);
+//            String text = date.format(formatter);
+            parsedDate = LocalDate.parse(str, formatter);
         }
         return parsedDate;
     }

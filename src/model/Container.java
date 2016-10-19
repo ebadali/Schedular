@@ -7,6 +7,8 @@ package model;
 
 import DBLayer.DBHandle;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -28,24 +30,10 @@ public class Container {
             );
 
     static ObservableList<Job> jobList
-            = FXCollections.observableArrayList(
-                    new Job(JobStatus.COMPLETED, "sadasd2", "sadsad", "33dad", "asdsada3423",
-                            "asd54as5d", "sadasd", "sasadsa", "asddasdll", "sadasd", LocalDate.MAX, LocalDate.MIN, true, true, true, new Project()),
-                    new Job(JobStatus.COMPLETED, "sadasd3", "sadsad", "33dad", "asdsada3423",
-                            "asd54as5d", "sadasd", "sasadsa4", "asddasdll", "sadasd", LocalDate.MAX, LocalDate.MIN, true, true, true, new Project()),
-                    new Job(JobStatus.COMPLETED, "sadasd5", "sadsad", "33dad", "asdsada3423",
-                            "asd54as5d", "sadasd", "sasadsa", "asddasdll", "sadasd", LocalDate.MAX, LocalDate.MIN, true, true, true, new Project()),
-                    new Job(JobStatus.COMPLETED, "sadasd6", "sadsad", "33dad", "asdsada3423",
-                            "asd54as5d", "sadasd", "sasadsa", "asddasdll", "sadasd", LocalDate.MAX, LocalDate.MIN, true, true, true, new Project()),
-                    new Job(JobStatus.COMPLETED, "sadasd7", "sadsad", "33dad", "asdsada3423",
-                            "asd54as5d", "sadasd", "sasadsa", "asddasdll", "sadasd", LocalDate.MAX, LocalDate.MIN, true, true, true, new Project()),
-                    new Job(JobStatus.COMPLETED, "sadasd8", "sadsad", "33dad", "asdsada3423",
-                            "asd54as5d", "sadasd", "sasadsa4", "asddasdll", "sadasd", LocalDate.MAX, LocalDate.MIN, true, true, true, new Project()),
-                    new Job(JobStatus.COMPLETED, "sadasd9", "sadsad", "33dad", "asdsada3423",
-                            "asd54as5d", "sadasd", "sasadsa", "asddasdll", "sadasd", LocalDate.MAX, LocalDate.MIN, true, true, true, new Project()),
-                    new Job(JobStatus.COMPLETED, "sadasd10", "sadsad", "33dad", "asdsada3423",
-                            "asd54as5d", "sadasd", "sasadsa", "asddasdll", "sadasd", LocalDate.MAX, LocalDate.MIN, true, true, true, new Project())
-            );
+            = FXCollections.observableArrayList();
+//                    new Job(JobStatus.COMPLETED, "sadasd10", "sadsad", "33dad", "asdsada3423",
+//                            "asd54as5d", "sadasd", "sasadsa", "asddasdll", "sadasd", LocalDate.MAX, LocalDate.MIN, true, true, true, new Project())
+//            );
 
 //    static ObservableMap<String, Inventory> inventory
 //            = FXCollections.observableHashMap();
@@ -85,7 +73,9 @@ public class Container {
 
         if (temp != null && temp.project != null) {
             RemoveInventory(temp.project.jobMaterial, temp.project.jobSqft);
+            DBHandle.GetConn().RemoveJob(temp);
         }
+
 //        DBHandle.GetConn().Test("Yolo");
     }
 
@@ -151,7 +141,7 @@ public class Container {
                 Inventory temp = inventory.get(i);
                 inventory.set(i, new Inventory(materia,
                         ((inventory.get(i).getInventorySqft() - old) + sqft)));
-                
+
                 DBHandle.GetConn().UpdateInventory(inventory.get(i), temp);
 
                 found = true;
@@ -211,6 +201,19 @@ public class Container {
         return jobList;
     }
 
+    public static ObservableList<Job> LoadJobsOfDate(LocalDate someDate) {
+
+        List<Job> list = new ArrayList();
+        for (Job job : jobList) {
+            if (job.jobTemplateDate.isEqual(someDate)) {
+                list.add(job);
+            }
+        }
+        
+        
+        return FXCollections.observableArrayList(list);
+    }
+
     public static ObservableList<InventoryTransaction> LoadInventoriesTransaction() {
 
         return inventoryTransactionList;
@@ -223,6 +226,94 @@ public class Container {
 //        }
 
         return inventory;
+    }
+
+    public static void Forward() {
+
+        from = from == null ? GetFirst() : from.plusDays(20);
+    }
+
+    public static void Backward() {
+        from = from == null ? GetFirst() : from.minusDays(20);
+    }
+
+    public interface Predicate<Job> {
+
+        void apply(LocalDate type);
+
+        void clearMap();
+
+        void setRange(LocalDate f, LocalDate t);
+
+        List<LocalDate> getMap();
+    }
+//  Returns Local Date in Sorted Order.
+    static Predicate<LocalDate> predicate = new Predicate<LocalDate>() {
+
+        public List<LocalDate> list = new ArrayList<>();
+        LocalDate from, to;
+
+        @Override
+        public void apply(LocalDate lDate) {
+
+            if ((lDate.isEqual(from) || lDate.isAfter(from))
+                    && (lDate.isEqual(to) || lDate.isBefore(to))) {
+                list.add(lDate);
+            }
+        }
+
+        @Override
+        public List<LocalDate> getMap() {
+            Collections.sort(list, new DateStruct());
+            return list;
+        }
+
+        @Override
+        public void clearMap() {
+            list.clear();
+        }
+
+        @Override
+        public void setRange(LocalDate f, LocalDate t) {
+
+            from = f;
+            to = t;
+        }
+    };
+    public static LocalDate from = null;
+
+    public static List<LocalDate> LoadTemplateDate() {
+
+        predicate.clearMap();
+
+        from = from == null ? GetFirst() : from;
+
+        LocalDate to = from.plusDays(20);
+        predicate.setRange(from, to);
+        for (Job job : jobList) {
+            if (job.jobTemplateDate != null) {
+                predicate.apply(job.jobTemplateDate);
+            }
+        }
+//        Collections.sort(jobList, new DateStruct());
+//        
+        return predicate.getMap();
+
+    }
+
+    static LocalDate GetFirst() {
+
+        LocalDate from = LocalDate.now();
+        boolean found = false;
+        for (Job jobList1 : jobList) {
+            if (jobList1.jobTemplateDate != null) {
+                from = jobList1.jobTemplateDate;
+                found = true;
+                break;
+            }
+        }
+
+        return from;
     }
 
 }

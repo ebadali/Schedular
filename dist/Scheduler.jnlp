@@ -8,13 +8,9 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="Scheduler.jar" size="35731" download="eager" />
-    <jar href="lib\ant-javafx.jar" size="446024" download="eager" />
-    <jar href="lib\commons-beanutils-1.9.3.jar" size="246174" download="eager" />
-    <jar href="lib\javafx-doclet.jar" size="1098005" download="eager" />
-    <jar href="lib\javafx-mx.jar" size="68323" download="eager" />
-    <jar href="lib\jfxswt.jar" size="32982" download="eager" />
+    <jar href="Scheduler.jar" size="39147" download="eager" />
     <jar href="lib\mongo-java-driver-3.3.0.jar" size="1540617" download="eager" />
+    <jar href="lib\morphia-1.2.1.jar" size="361864" download="eager" />
   </resources>
   <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="Scheduler" >
     <param name="requiredFXVersion" value="8.0+"/>
