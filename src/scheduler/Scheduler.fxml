@@ -392,7 +392,7 @@
                                         <TableView fx:id="templateList44" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="4"  GridPane.rowIndex="3"/>
                                     </children>
                                 </GridPane>
-                                <Button  layoutY="697.0" mnemonicParsing="false" text="Back" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" onAction="#handleTemplateBackwardAction" >
+                                <Button  layoutY="697.0" mnemonicParsing="false" text="Back" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" onAction="#template_backword" >
                                     <graphic>
                                         <ImageView nodeOrientation="RIGHT_TO_LEFT">
                                             <image>
@@ -401,8 +401,8 @@
                                         </ImageView>
                                     </graphic>
                                 </Button>
-                                <ChoiceBox fx:id="template_datepicker" layoutX="69.0" layoutY="697.0" prefHeight="32.0" prefWidth="115.0" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="100.0" onItemsChange="#handleTemplateValueChangeAction"  />
-                                <Button  layoutX="184.0" layoutY="697.0" mnemonicParsing="false" text="Forward" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="5.0"  onAction="#handleTemplateForwardAction" >
+                                <ChoiceBox fx:id="template_datepicker" layoutX="69.0" layoutY="697.0" prefHeight="32.0" prefWidth="115.0" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="100.0"   />
+                                <Button  layoutX="184.0" layoutY="697.0" mnemonicParsing="false" text="Forward" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="5.0"  onAction="#template_forward" >
                                     <graphic>
                                         <ImageView>
                                             <image>
@@ -476,7 +476,7 @@
                                         </ImageView>
                                     </graphic>
                                 </Button>
-                                <ChoiceBox fx:id="install_datepicker" prefHeight="32.0" prefWidth="115.0" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="100.0" onItemsChange="#handleInstallValueChangeAction"  />
+                                <ChoiceBox fx:id="install_datepicker" prefHeight="32.0" prefWidth="115.0" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="100.0"  />
                                 <Button mnemonicParsing="false" text="Forward" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="5.0" onAction="#handleInstallForwardAction" >
                                     <graphic>
                                         <ImageView>

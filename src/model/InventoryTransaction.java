@@ -5,6 +5,8 @@
  */
 package model;
 
+import org.bson.Document;
+
 
 
 /**
@@ -27,6 +29,21 @@ public class InventoryTransaction {
         this.inventoryMaterial =  (inventoryMaterial);
         this.inventoryThickness = (inventoryThickness);
         this.inventorySqft = (inventorySqft);
+        this.inventoryPicture = ("");
+    }
+
+    public InventoryTransaction(Document document) {
+        
+        this.inventoryBatch =  document.getString("inventoryBatch");
+        this.inventoryMaterial =  document.getString("inventoryMaterial");
+        this.inventoryThickness = document.getString("inventoryThickness");
+        try{
+        this.inventorySqft = document.getDouble("inventorySqft");
+        }catch(Exception ex)
+        {
+            ex.printStackTrace();
+            this.inventorySqft = 0.0;
+        }
         this.inventoryPicture = ("");
     }
 
@@ -61,6 +78,15 @@ public class InventoryTransaction {
 
     public Double getInventorySqft() {
         return inventorySqft;
+    }
+
+    public Document toDocument() {
+        return new Document()
+                .append("inventoryMaterial", this.inventoryMaterial)
+                .append("inventoryBatch", this.inventoryBatch)
+                .append("inventorySqft", this.inventorySqft)
+                .append("inventoryThickness", this.inventoryThickness)
+                .append("inventoryPicture", this.inventoryPicture);
     }
    
     

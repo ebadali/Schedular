@@ -15,9 +15,11 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import model.Inventory;
+import model.InventoryTransaction;
 import model.Job;
 import org.bson.Document;
 
@@ -30,8 +32,8 @@ public class DBHandle {
     private MongoDatabase db = null;
     MongoCollection<Document> job, inventory, inventoryTransaction;
     static DBHandle handle;
-    
-    final String INVENTORY = "inventory", JOB ="job" , INVENTORYSTORE = "inventoryTransaction";
+
+    final String INVENTORY = "inventory", JOB = "job", INVENTORYSTORE = "inventoryTransaction";
 
     private DBHandle() {
         try {
@@ -42,7 +44,7 @@ public class DBHandle {
             MongoClient mongoClient = new MongoClient(new ServerAddress("localhost", 27017));
 
             db = mongoClient.getDatabase("schedule");
-            job = db.getCollection(JOB);           
+            job = db.getCollection(JOB);
             inventory = db.getCollection(INVENTORY);
 
             inventoryTransaction = db.getCollection(INVENTORYSTORE);
@@ -118,20 +120,6 @@ public class DBHandle {
 //                System.out.println(document);
             }
         });
-
-//        DBCursor cursor = this.job.find();
-// 
-//        while (cursor.hasNext()) {
-//            DBObject theObj = cursor.next();
-//            //How to get the DBObject value to ArrayList of Java Object?
-////            if( theObj.get("Job") ! )
-//            System.out.println(theObj);
-////            BasicDBList studentsList = (BasicDBList) theObj.get("Job");
-////            for (Object studentsList1 : studentsList) {
-////                BasicDBObject obj = (BasicDBObject) studentsList1;
-////                listOfJobs.add(new Job(obj));
-////            }      
-//        }
         return listOfJobs;
     }
 
@@ -142,10 +130,11 @@ public class DBHandle {
 
             System.out.println(old.toBasicDBObject());
             System.out.println(job.toBasicDBObject());
-//            db.getCollection(JOB).updateOne(eq("name", "frank"), new Document("$set", new Document("age", 33)));
 
-            UpdateResult res = db.getCollection(JOB).replaceOne(old.toBasicDBObject(), job.toBasicDBObject());
-            System.out.println("Document inserted successfully with " + res.toString());
+            BasicDBObject query = new BasicDBObject().append("jobWorkOrder", old.getJobWorkOrder());
+
+            UpdateResult res = db.getCollection(JOB).replaceOne(query, job.toBasicDBObject());
+            System.out.println("Document Replaced successfully with " + res.toString());
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.err.println(e.toString());
@@ -159,7 +148,6 @@ public class DBHandle {
             db.getCollection(INVENTORY).insertOne(newinvent.toDocument());
             System.out.println("Inventory inserted successfully");
 
-
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
 
@@ -167,26 +155,25 @@ public class DBHandle {
     }
 
     public void UpdateInventory(Inventory newinvent, Inventory oldinvent) {
-        
+
         try {
-            UpdateResult res = db.getCollection(INVENTORY).replaceOne(oldinvent.toDocument(), newinvent.toDocument());
-            System.out.println("Document inserted successfully with " + res.toString());
+            BasicDBObject query = new BasicDBObject().append("inventoryMaterial", oldinvent.getInventoryMaterial());
+
+            UpdateResult res = db.getCollection(INVENTORY).replaceOne(query, newinvent.toDocument());
+            System.out.println("Inventory Updated successfully with " + res.toString());
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            
 
         }
     }
 
     public void RemoveJob(Job old) {
         try {
-//            Document doc = new Document().
-//                    append("$set", job.toBasicDBObject());
 
             System.out.println(old.toBasicDBObject());
-            
-            DeleteResult res = db.getCollection(JOB).deleteOne(old.toBasicDBObject());
-            System.out.println("Document inserted successfully with " + res.toString());
+            BasicDBObject query = new BasicDBObject().append("jobWorkOrder", old.getJobWorkOrder());
+            DeleteResult res = db.getCollection(JOB).deleteOne(query);
+            System.out.println("Document Removed successfully with " + res.toString());
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.err.println(e.toString());
@@ -194,4 +181,61 @@ public class DBHandle {
         }
     }
 
+    public List<Job> GetJobsOfDate(LocalDate someDate) {
+        final List<Job> listOfJobs = new ArrayList<>();
+
+        FindIterable<Document> iterable = db.getCollection(JOB).find(
+                new Document("Job.jobTemplateDate", new Document("$lt", Job.dateToString(someDate))));
+        iterable.forEach(new Block<Document>() {
+            @Override
+            public void apply(final Document document) {
+
+                listOfJobs.add(new Job(document));
+//                System.out.println(document);
+            }
+        });
+
+        return listOfJobs;
+
+    }
+
+    public List<Inventory> LoadInventories() {
+        final List<Inventory> listOfJobs = new ArrayList<>();
+
+//        FindIterable<Document> iterable = job.find();
+        FindIterable<Document> iterable = db.getCollection(INVENTORY).find().limit(50);
+        iterable.forEach(new Block<Document>() {
+            @Override
+            public void apply(final Document document) {
+                listOfJobs.add(new Inventory(document));
+            }
+        });
+        return listOfJobs;
+    }
+
+    public List<InventoryTransaction> LoadInventoryTransaction() {
+        final List<InventoryTransaction> listOfJobs = new ArrayList<>();
+        FindIterable<Document> iterable = db.getCollection(INVENTORYSTORE).find().limit(50);
+        iterable.forEach(new Block<Document>() {
+            @Override
+            public void apply(final Document document) {
+
+                listOfJobs.add(new InventoryTransaction(document));
+            }
+        });
+        return listOfJobs;
+    }
+    
+    public void AddInventoryTransaction(InventoryTransaction transaction)
+    {
+                try {
+            db.getCollection(INVENTORYSTORE).insertOne(transaction.toDocument());
+            System.out.println("InventoryTransaction inserted successfully");
+
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+
+        }
+
+    }
 }

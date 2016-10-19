@@ -7,19 +7,20 @@ package scheduler;
 
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
@@ -318,7 +319,7 @@ public class SchedulerController implements Initializable {
         jobInAtHome.setSelected(job.project.jobInAtHome);
         jobTemplateOnly.setSelected(job.project.jobTemplateOnly);
 
-        jobWorkOrder.setText(job.jobWorkOrder);
+        jobWorkOrder.setText(job.getjobWorkOrder());
         jobClient.setText(job.jobClient);
         jobAddress.setText(job.jobAddress);
         jobPostalCode.setText(job.jobPostalCode);
@@ -507,8 +508,7 @@ public class SchedulerController implements Initializable {
 
     }
 
-    @FXML
-    private void handleTemplateValueChangeAction(ObservableValue  event, String t, String t1) {
+    private void handleTemplateValueChangeAction(ActionEvent event) {
         System.out.println("You clicked me!");
         label.setText("Hello World!");
     }
@@ -518,12 +518,23 @@ public class SchedulerController implements Initializable {
     private void handleInstallForwardAction(ActionEvent event) {
         System.out.println("You clicked me!");
         label.setText("Hello World!");
+
+        System.out.println("You clicked me!");
+        Container.Forward();
+        System.out.println("I am called");
+        System.out.println(Container.from);
+
+        UpdateInstallCalender();
+
     }
 
     @FXML
     private void handleInstallBackwardAction(ActionEvent event) {
-        System.out.println("You clicked me!");
-        label.setText("Hello World!");
+        Container.Backward();
+        System.out.println("I am called");
+        System.out.println(Container.from);
+
+        UpdateInstallCalender();
     }
 
     @FXML
@@ -679,10 +690,10 @@ public class SchedulerController implements Initializable {
     private void LoadTemplate() {
 
         templateMaterialCol.setCellValueFactory(
-                new PropertyValueFactory<Job, String>("jobMaterial")
+                new PropertyValueFactory<String, String>("jobMaterial")
         );
         templateWorkOrderCol.setCellValueFactory(
-                new PropertyValueFactory<Job, String>("jobWorkOrder")
+                new PropertyValueFactory<String, String>("jobWorkOrder")
         );
 
         if (templateList11.getColumns().isEmpty()) {
@@ -709,32 +720,44 @@ public class SchedulerController implements Initializable {
             templateList42.getColumns().addAll(templateTable.getColumns());
             templateList43.getColumns().addAll(templateTable.getColumns());
             templateList44.getColumns().addAll(templateTable.getColumns());
+            
+            this.template_datepicker.selectionModelProperty().addListener(new ChangeListener() {
+                @Override
+                public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                    System.out.println(newValue);
+                }
+            });
         }
 
 //        1. Saperate Unique Template Dates.
 //        2. Fill Data From that Date to forward 20.
         UpdateTemplateCalender();
+
     }
 
     private void UpdateTemplateCalender() {
         List<LocalDate> j = Container.LoadTemplateDate();
+
+        this.template_datepicker.setItems(FXCollections.observableArrayList(j));
         System.out.println(j);
         if (j.size() > 0) {
             LocalDate first = j.get(0);
             int index = 0;
-            
-            template_datepicker.setItems(FXCollections.observableArrayList(j));
 
-            templateTable.setItems(Container.LoadJobs());
+            System.out.println(j);
 
-//            templateTable.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
-//        Their will be many like these.
+//            template_datepicker.setItems(FXCollections.observableArrayList(j));
+//            templateTable.setItems(Container.LoadJobs());
+            ObservableList<Job> josb = Container.LoadJobsOfDate(first.plusDays(index++));
+            System.out.println(josb);
+
+            templateTable.setItems(josb);
 //        1st Row.
             templateList11.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
             templateList12.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
             templateList13.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
             templateList14.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
-
+            System.out.println(index + "");
 //
 //        //        2nd Row.
             templateList20.setItems(Container.LoadJobsOfDate(first.plusDays(index++)));
@@ -763,10 +786,10 @@ public class SchedulerController implements Initializable {
     private void LoadInstall() {
 
         installMaterialCol.setCellValueFactory(
-                new PropertyValueFactory<Job, String>("jobMaterial")
+                new PropertyValueFactory<String, String>("jobMaterial")
         );
         installWorkOrderCol.setCellValueFactory(
-                new PropertyValueFactory<Job, String>("jobWorkOrder")
+                new PropertyValueFactory<String, String>("jobWorkOrder")
         );
 
         if (installList11.getColumns().isEmpty()) {
@@ -793,6 +816,13 @@ public class SchedulerController implements Initializable {
             installList42.getColumns().addAll(installTable.getColumns());
             installList43.getColumns().addAll(installTable.getColumns());
             installList44.getColumns().addAll(templateTable.getColumns());
+            
+            this.install_datepicker.selectionModelProperty().addListener(new ChangeListener() {
+                @Override
+                public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                    System.out.println(newValue);
+                }
+            });
         }
 
         UpdateInstallCalender();
@@ -800,6 +830,8 @@ public class SchedulerController implements Initializable {
 
     private void UpdateInstallCalender() {
         List<LocalDate> j = Container.LoadTemplateDate();
+        
+        this.install_datepicker.setItems(FXCollections.observableArrayList(j));
 
         System.out.println(j);
 
@@ -848,8 +880,6 @@ public class SchedulerController implements Initializable {
         );
         inventoryTable.setItems(Container.LoadInventories());
 
-        inventoryHistTable.setItems(Container.LoadInventoriesTransaction());
-
         inventoryMaterialHistCol.setCellValueFactory(new PropertyValueFactory<InventoryTransaction, String>("inventoryMaterial")
         );
         inventoryThicknessHistCol.setCellValueFactory(new PropertyValueFactory<InventoryTransaction, String>("inventoryThickness")
@@ -860,7 +890,7 @@ public class SchedulerController implements Initializable {
         );
         inventoryPicHist.setCellValueFactory(new PropertyValueFactory<InventoryTransaction, String>("inventoryPicture")
         );
-
+        inventoryHistTable.setItems(Container.LoadInventoriesTransaction());
     }
 
     private Double GetDouble(TextField jobSqft) {

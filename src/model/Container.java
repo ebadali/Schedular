@@ -47,7 +47,7 @@ public class Container {
         System.out.println("Fine Till here");
         jobList.add(job);
         if (job.project != null) {
-            AddInventory(job.project.jobMaterial, job.project.jobSqft);
+            AddInventory(job.project.jobMaterial, -job.project.jobSqft);
         }
 
 //        DBHandle.GetConn().Test("Yolo");
@@ -97,7 +97,7 @@ public class Container {
             if (inventory.get(i).inventoryMaterial.equalsIgnoreCase(materia)) {
                 invent = inventory.get(i);
                 inventory.set(i, new Inventory(materia,
-                        (inventory.get(i).getInventorySqft() + sqft)));
+                        (invent.getInventorySqft() + sqft)));
                 found = i;
                 break;
             }
@@ -110,7 +110,6 @@ public class Container {
         } else {
 
             DBHandle.GetConn().UpdateInventory(inventory.get(found), invent);
-
         }
 
     }
@@ -172,6 +171,7 @@ public class Container {
         if (job != null) {
             AddInventory(job.getInventoryMaterial(), job.getInventorySqft());
             inventoryTransactionList.add(job);
+            DBHandle.GetConn().AddInventoryTransaction(job);
 
         }
 
@@ -202,29 +202,39 @@ public class Container {
     }
 
     public static ObservableList<Job> LoadJobsOfDate(LocalDate someDate) {
+                System.out.println(someDate);
 
+//        return FXCollections.observableArrayList(DBHandle.GetConn().GetJobsOfDate(someDate));
         List<Job> list = new ArrayList();
         for (Job job : jobList) {
+
             if (job.jobTemplateDate.isEqual(someDate)) {
-                list.add(job);
+                list.add((Job) job);
             }
         }
-        
-        
+        System.out.println("*****");
+        System.out.println(list);
         return FXCollections.observableArrayList(list);
     }
 
     public static ObservableList<InventoryTransaction> LoadInventoriesTransaction() {
+        List<InventoryTransaction> list= DBHandle.GetConn().LoadInventoryTransaction();
 
+          inventoryTransactionList = FXCollections.observableArrayList(list);
+        System.out.println(inventoryTransactionList);
         return inventoryTransactionList;
     }
 
     public static ObservableList<Inventory> LoadInventories() {
+        
+        
+        List<Inventory> list= DBHandle.GetConn().LoadInventories();
 //        inventory.clear();
 //        for (InventoryTransaction invnt : inventoryTransactionList) {
 //            inventory.add(new Inventory(invnt.getInventoryMaterial(), invnt.getInventorySqft()));
 //        }
-
+          inventory = FXCollections.observableArrayList(list);
+        
         return inventory;
     }
 

@@ -7,6 +7,8 @@ package model;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import javafx.scene.control.TableCell;
+//import javafx.beans.property.String;
 import org.bson.Document;
 
 /**
@@ -15,11 +17,20 @@ import org.bson.Document;
  */
 public class Job {
 
+    
     public JobStatus selectedStatus = JobStatus.NONE;
 
-    public String jobWorkOrder = ("");
+    private String jobWorkOrder = "";
 
     public String jobClient;
+
+    public String getJobWorkOrder() {
+        return jobWorkOrder;
+    }
+
+    public String getJobMaterial() {
+        return jobMaterial;
+    }
 
     public String jobAddress;
 
@@ -36,7 +47,7 @@ public class Job {
     public boolean jobRemoval;
     public boolean jobDisposal;
 
-    public String jobMaterial = ("");
+    private String jobMaterial = "";
     ///////////////////////////////////////////////////////////////////////////
     public Project project = new Project();
 
@@ -50,7 +61,7 @@ public class Job {
             boolean jobDisposal, Project project) {
 
         this.selectedStatus = selectedStatus;
-        this.jobWorkOrder = (jobWorkOrder);
+        this.jobWorkOrder = new String(jobWorkOrder);
         this.jobClient = jobClient;
         this.jobAddress = jobAddress;
         this.jobPostalCode = jobPostalCode;
@@ -66,14 +77,14 @@ public class Job {
         this.jobDisposal = jobDisposal;
         this.project = (project);
 
-        this.jobMaterial = this.project.getJobMaterial();
+        this.jobMaterial = new String(this.project.getJobMaterial());
     }
 
     public Job(Document obj) {
 
         selectedStatus = JobStatus.fromString(obj.getString("selectedStatus"));
 
-        jobWorkOrder = (obj.getString("jobWorkOrder"));
+        jobWorkOrder = obj.getString("jobWorkOrder");
         jobClient = obj.getString("jobClient");
         jobAddress = obj.getString("jobAddress");
         jobPostalCode = obj.getString("jobPostalCode");
@@ -91,12 +102,12 @@ public class Job {
         jobDisposal = obj.getBoolean("jobDisposal", false);
 
         project = new Project(obj.get("project", Document.class));
-        jobWorkOrderComments = project.jobMaterial;
+        this.jobMaterial = project.jobMaterial;
     }
 
     public LocalDate getFixedDate(String str) {
         LocalDate parsedDate = LocalDate.MAX;
-        if (str != "" && str != null && !str.isEmpty() ) {
+        if (str != "" && str != null && !str.isEmpty()) {
 //            LocalDate date = LocalDate.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM dd");
 //            String text = date.format(formatter);
@@ -105,15 +116,24 @@ public class Job {
         return parsedDate;
     }
 
-    public Document toBasicDBObject() {
-        String s1= "", s2="";
-        try{
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM dd");
-        s1 = jobTemplateDate.format(formatter);
-        s2 = jobInstallDate.format(formatter);
-        }catch(Exception ex)
-        {
+    public static String dateToString(LocalDate lc) {
+        String s1 = "";
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM dd");
+            s1 = lc.format(formatter);
+        } catch (Exception ex) {
         }
+        return s1;
+    }
+
+    public Document toBasicDBObject() {
+//        String s1 = "", s2 = "";
+//        try {
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM dd");
+//            s1 = jobTemplateDate.format(formatter);
+//            s2 = jobInstallDate.format(formatter);
+//        } catch (Exception ex) {
+//        }
         return new Document()
                 .append("selectedStatus", selectedStatus.name())
                 .append("jobWorkOrder", jobWorkOrder)
@@ -124,8 +144,8 @@ public class Job {
                 .append("jobSuperSite", jobSuperSite)
                 .append("jobSalesperson", jobSalesperson)
                 .append("jobWorkOrderComments", jobWorkOrderComments)
-                .append("jobTemplateDate", s1)
-                .append("jobInstallDate", s2)
+                .append("jobTemplateDate", dateToString(jobTemplateDate))
+                .append("jobInstallDate", dateToString(jobInstallDate))
                 .append("jobInvoiced", jobInvoiced)
                 .append("jobRemoval", jobRemoval)
                 .append("jobDisposal", jobDisposal)
@@ -138,15 +158,15 @@ public class Job {
         return jobWorkOrder; //To change body of generated methods, choose Tools | Templates.
     }
 
-    public String getJobWorkOrder() {
+    public String getjobWorkOrder() {
         return jobWorkOrder;
     }
 
-    public String getProject() {
+    public String project() {
         return project.getJobMaterial();
     }
 
-    public String getJobMaterial() {
+    public String getjobMaterial() {
         return jobMaterial;
     }
 

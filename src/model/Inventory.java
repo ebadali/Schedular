@@ -17,8 +17,20 @@ public class Inventory {
     public double inventorySqft;
 
     public Inventory(String inventoryMaterial, double inventorySqft) {
-        this.inventoryMaterial = new String(inventoryMaterial);
+        this.inventoryMaterial = inventoryMaterial;
         this.inventorySqft = inventorySqft;
+    }
+
+    public Inventory(Document document) {
+        this.inventoryMaterial = document.getString("inventoryMaterial");
+
+        try {
+            this.inventorySqft = document.getDouble("inventorySqft");
+        }catch(Exception ex)
+        {
+            this.inventorySqft = 0.0;
+        }
+
     }
 
     public String getInventoryMaterial() {
@@ -34,19 +46,19 @@ public class Inventory {
     }
 
     public void RemoveInventorySqft(Double d) {
-        inventorySqft=(inventorySqft - d);
+        inventorySqft = (inventorySqft - d);
     }
 
-    @Override
-    public String toString() {
-        return "Name " + this.getInventoryMaterial() + " , " + this.getInventorySqft(); //To change body of generated methods, choose Tools | Templates.
-    }
+//    @Override
+//    public String toString() {
+//        return "Name " + this.getInventoryMaterial() + " , " + this.getInventorySqft(); //To change body of generated methods, choose Tools | Templates.
+//    }
 
     public Document toDocument() {
         return new Document()
                 .append("inventoryMaterial", inventoryMaterial)
-                .append("inventorySqft", inventorySqft );
-         
+                .append("inventorySqft", inventorySqft);
+
     }
 
 }
